@@ -46,6 +46,7 @@ FUNC(NOOP);        // no-op
 FUNC(PASS);        // password
 FUNC(PORT);        // address for data transfer
 FUNC(PWD);         // print working directory
+FUNC(MKD);         // make directory
 FUNC(QUIT);        // quit
 FUNC(RETR);        // retrieve file
 FUNC(STOR);        // store file
@@ -69,6 +70,7 @@ ftp_cmd_t commands[] = {
   CMD(PASS),
   CMD(PORT),
   CMD(PWD),
+  CMD(MKD),
   CMD(QUIT),
   CMD(RETR),
   CMD(STOR),
@@ -804,6 +806,32 @@ void CWD(int sock, fd_set *master) {
 
   memset(buf, 0, sizeof(buf));
   sprintf(buf, "250 Changed to '%s'\r\n", path);
+  msg = buf;
+  SEND();
+}
+
+void MKD(int sock, fd_set *master) {
+  int rc;
+  const char *msg;
+
+  // scan parameter
+  if(sscanf(buf, "MKD %s", path) != 1) {
+    msg = "501 Parameter syntax error\r\n";
+    SEND();
+    return;
+  }
+
+  // create the new directory
+  if(mkdir(path, ACCESSPERMS) == -1) {
+    memset(buf, 0, sizeof(buf));
+    sprintf(buf, "550 %s\r\n", strerror(errno));
+    msg = buf;
+    SEND();
+    return;
+  }
+
+  memset(buf, 0, sizeof(buf));
+  sprintf(buf, "257 '%s' directory created\r\n", path);
   msg = buf;
   SEND();
 }
