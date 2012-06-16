@@ -31,17 +31,19 @@ int main(int argc, const char* argv[])
 	bind(listen_socket, (struct sockaddr *) &local_addr, addrlen);
 	listen(listen_socket, 5);
 
-	int client_socket = accept(listen_socket, (struct sockaddr *) &peer_addr, &addrlen);
-	while (client_socket) {
+	int client_socket;
+	while (client_socket = accept(listen_socket, (struct sockaddr *) &peer_addr, &addrlen)) {
 		char buf[4096];
 		int len = recv(client_socket, buf, sizeof(buf), 0);
+		fprintf(stderr, "recv:%d\n", len);
 		if (len == -1) break;
 		int offset = 0;
 		while (offset < len) {
 			int len_sent = send(client_socket, buf + offset, len - offset, 0);
-			if (len == -1) break;
+			fprintf(stderr, "send:%d\n", len_sent);
+			if (len_sent == -1) break;
+			offset += len_sent;
 		}
-		len = send(client_socket, buf, len, 0);
 	}
 
         closesocket(client_socket);
