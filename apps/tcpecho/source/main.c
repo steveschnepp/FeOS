@@ -32,15 +32,15 @@ int main(int argc, const char* argv[])
 	listen(listen_socket, 5);
 
 	int client_socket;
-	while (client_socket = accept(listen_socket, (struct sockaddr *) &peer_addr, &addrlen)) {
-		char buf[4096];
+	while ((client_socket = accept(listen_socket, (struct sockaddr *) &peer_addr, &addrlen)) != -1) {
+		char buf[1000];
 		int len = recv(client_socket, buf, sizeof(buf), 0);
-		fprintf(stderr, "recv:%d\n", len);
+		fprintf(stderr, "recv(%d):%d\n", sizeof(buf), len);
 		if (len == -1) break;
 		int offset = 0;
 		while (offset < len) {
 			int len_sent = send(client_socket, buf + offset, len - offset, 0);
-			fprintf(stderr, "send:%d\n", len_sent);
+			fprintf(stderr, "send(%d, %d):%d\n", buf + offset, len - offset, len_sent);
 			if (len_sent == -1) break;
 			offset += len_sent;
 		}
