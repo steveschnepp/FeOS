@@ -11,7 +11,7 @@ const unsigned short port = 7; /* port to listen on */
 
 int main(int argc, const char* argv[])
 {
-	if (Wifi_Startup()) {
+	if (!Wifi_Startup()) {
 		fprintf(stderr, "Can't init Wifi!\n");
 		return 1;
 	}
