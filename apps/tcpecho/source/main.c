@@ -33,6 +33,7 @@ int main(int argc, const char* argv[])
 
 	int client_socket;
 	while ((client_socket = accept(listen_socket, (struct sockaddr *) &peer_addr, &addrlen)) != -1) {
+	   do {
 		char buf[1024];
 		int len = recv(client_socket, buf, sizeof(buf), 0);
 		swiWaitForVBlank();
@@ -46,9 +47,10 @@ int main(int argc, const char* argv[])
 			if (len_sent == -1) break;
 			offset += len_sent;
 		}
+	   } while (true);
+	   closesocket(client_socket);
 	}
 
-        closesocket(client_socket);
         closesocket(listen_socket);
 
 	Wifi_Cleanup();
