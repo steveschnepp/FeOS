@@ -8,7 +8,6 @@ build/
 !/apps/cmdprompt/
 !/apps/stats/
 !/apps/tcpcmd/
-!/apps/tcpecho/
 /FeOS/
 /testbin/
 /sdk/lib/
