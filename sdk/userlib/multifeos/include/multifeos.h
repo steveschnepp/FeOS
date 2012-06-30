@@ -25,6 +25,8 @@ extern "C" {
 typedef void* thread_t;
 typedef int (*threadEP_t)(void* param);
 
+#define FeOS_CancelThread FeOS_FreeThread
+
 MULTIFEOS_API thread_t FeOS_CreateThread(word_t stackSize, threadEP_t entryPoint, void* param);
 MULTIFEOS_API void FeOS_Yield();
 MULTIFEOS_API thread_t FeOS_GetCurrentThread();
@@ -47,8 +49,11 @@ MULTIFEOS_API void FeOS_UninstallYieldIRQ();
 
 static inline int FeOS_ThreadWaitClose(thread_t hThread)
 {
+	int rc;
 	while (FeOS_IsThreadActive(hThread)) FeOS_Yield();
-	return FeOS_GetThreadRC(hThread);
+	rc = FeOS_GetThreadRC(hThread);
+	FeOS_FreeThread(hThread);
+	return rc;
 }
 
 #ifdef __cplusplus

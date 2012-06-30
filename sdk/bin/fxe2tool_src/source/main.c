@@ -279,14 +279,22 @@ int WriteRelocations(elf2fx2_cnvstruct_t* cs)
 		while((i < nwords) && !loaddata[i]) i ++, rs ++;
 		while((i < nwords) && loaddata[i]) i ++, rp ++;
 
+		// Remove empty trailing relocations
+		if (i == nwords && rs && !rp)
+			break;
+
 		// Write excess skip relocations
 		for(reloc.skip = 0xFFFF, reloc.patch = 0; rs > 0xFFFF; rs -= 0xFFFF)
+		{
 			safe_call(WriteData(cs->outf, &reloc, sizeof(fxe2_reloc_t)));
+			cs->fxe2hdr.nrelocs ++;
+		}
 
 		// Write excess patch relocations
 		for(reloc.skip = eswap_hword(rs), reloc.patch = 0xFFFF; rp > 0xFFFF; rp -= 0xFFFF)
 		{
 			safe_call(WriteData(cs->outf, &reloc, sizeof(fxe2_reloc_t)));
+			cs->fxe2hdr.nrelocs ++;
 			rs = reloc.skip = 0;
 		}
 
@@ -456,9 +464,9 @@ int ProcessSymbols(elf2fx2_cnvstruct_t* cs)
 			fprintf(tempfile, ".global %s\n.hidden %s\n%s:", symname, symname, symname);
 		fprintf(tempfile, "__imp_%s:\n\t.word 0", symname);
 		fclose(tempfile);
-		sprintf(cmd, "arm-eabi-gcc -x assembler-with-cpp -g0 -c %s.imp.s -o %s.imp.o", symname, symname);
+		sprintf(cmd, "arm-none-eabi-gcc -x assembler-with-cpp -g0 -c %s.imp.s -o %s.imp.o", symname, symname);
 		if (system(cmd) != 0)
-			die("arm-eabi-gcc returned error");
+			die("arm-none-eabi-gcc returned error");
 
 		safe_call(AddExpImp(cs, &exp_list, symname, symaddr, AEI_EXPORT));
 	}
@@ -469,12 +477,12 @@ int ProcessSymbols(elf2fx2_cnvstruct_t* cs)
 		if (system(cmd) != 0)
 			die("rm returned error");
 		FILE* tempfile = fopen("__mkimp.mk", "w");
-		fprintf(tempfile, "all:\n\t@arm-eabi-ar -rc %s $(wildcard *.imp.o)\n", imp_name);
+		fprintf(tempfile, "all:\n\t@arm-none-eabi-ar -rc %s $(wildcard *.imp.o)\n", imp_name);
 		fclose(tempfile);
-		//sprintf(cmd, "arm-eabi-ar -rc %s *.imp.o", imp_name);
+		//sprintf(cmd, "arm-none-eabi-ar -rc %s *.imp.o", imp_name);
 		//if (system(cmd) != 0)
 		if (system("make -f __mkimp.mk"))
-			die("arm-eabi-ar returned error");
+			die("arm-none-eabi-ar returned error");
 		sprintf(cmd, "rm -f *.imp.o *.imp.s __mkimp.mk");
 		if (system(cmd) != 0)
 			die("rm returned error");
