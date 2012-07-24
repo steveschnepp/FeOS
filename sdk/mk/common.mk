@@ -181,12 +181,12 @@ endif
 #---------------------------------------------------------------------------------
 all: $(BUILD)
 
-$(BUILD):
+$(BUILD): $(CONF_PREREQUISITES)
 	@[ -d $@ ] || mkdir -p $@
 ifeq ($(strip $(CONF_TARGET)),staticlib)
 	@mkdir -p lib
 endif
-	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/$(THIS_MAKEFILE)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/$(THIS_MAKEFILE)
 ifneq ($(strip $(CONF_TARGET)),staticlib)
 	@$(NM) -CSn $(OUTPUT).elf > $(BUILD)/$(TARGET).alt.map
 else
@@ -202,9 +202,9 @@ endif
 #---------------------------------------------------------------------------------
 clean:
 ifneq ($(strip $(CONF_TARGET)),staticlib)
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).elf.dbg $(TARGET).fx2 $(TARGET).imp.a lib/lib$(TARGET).a
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).elf.dbg $(TARGET).fx2 $(TARGET).imp.a lib/lib$(TARGET).a $(CONF_EXTRACLEAN)
 else
-	@rm -fr $(BUILD) lib/lib$(TARGET).a
+	@rm -fr $(BUILD) lib/lib$(TARGET).a $(CONF_EXTRACLEAN)
 endif
 
 #---------------------------------------------------------------------------------

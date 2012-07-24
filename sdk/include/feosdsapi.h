@@ -104,6 +104,11 @@ enum
 #define SPRITE_PALETTE     ((hword_t*) 0x05000200)
 #define SPRITE_PALETTE_SUB ((hword_t*) 0x05000600)
 
+#define BG_GFX             ((hword_t*)0x6000000)
+#define BG_GFX_SUB         ((hword_t*)0x6200000)
+#define SPRITE_GFX         ((hword_t*)0x6400000)
+#define SPRITE_GFX_SUB     ((hword_t*)0x6600000)
+
 #define VRAM_A ((hword_t*) 0x6800000)
 #define VRAM_B ((hword_t*) 0x6820000)
 #define VRAM_C ((hword_t*) 0x6840000)
@@ -374,8 +379,10 @@ void FeOS_ConsoleMode();
 void FeOS_DirectMode();
 int FeOS_GetMode();
 
-#define FEOS_GET_SHIM ((modeshim_t*)~0)
-modeshim_t* FeOS_ModeShim(modeshim_t* pNewShim);
+#define FEOS_GET_SHIM ((const modeshim_t*)~0)
+const modeshim_t* FeOS_ModeShim(const modeshim_t* pNewShim);
+
+void FeOS_VideoReset();
 
 void dmaCopyWords(int, const void*, void*, word_t);
 void dmaCopyHalfWords(int, const void*, void*, word_t);
